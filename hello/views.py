@@ -3,6 +3,7 @@ from django.template import loader
 import requests
 import os
 
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Greeting
 from .models import ShortenedURL
@@ -10,6 +11,7 @@ from .models import ShortenedURL
 from django.http import HttpResponse
 # Create your views here.
 
+@csrf_exempt
 def index(request):
     short_url = None
     if request.method == "POST":
