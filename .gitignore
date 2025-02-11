@@ -24,6 +24,7 @@ media/
 # IDE Files
 .vscode/
 .idea/
+.idea
 
 # macOS files
 .DS_Store
