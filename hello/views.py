@@ -1,5 +1,7 @@
 from django.shortcuts import render
 import requests
+import os
+
 
 from .models import Greeting
 from django.http import HttpResponse
@@ -7,8 +9,8 @@ from django.http import HttpResponse
 
 
 def index(request):
-    r = requests.get('https://httpbin.org/status/418',timeout=10)
-    return HttpResponse('<pre>' + r.text + '</pre>')
+    times = int(os.environ.get('TIMES', 3))
+    return HttpResponse('Hello! ' * times)
 
 
 def db(request):
