@@ -1,12 +1,14 @@
 from django.shortcuts import render
+import requests
 
 from .models import Greeting
-
+from django.http import HttpResponse
 # Create your views here.
 
 
 def index(request):
-    return render(request, "index.html")
+    r = requests.get('https://httpbin.org/status/418',timeout=10)
+    return HttpResponse('<pre>' + r.text + '</pre>')
 
 
 def db(request):
