@@ -1,11 +1,54 @@
 # Python files
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environments
 .venv/
 venv/
+ENV/
 
 # Django files
 staticfiles/
 db.sqlite3
+*.log
+local_settings.py
+media/
+
+# Environment Variables
+.env
+.env.*
+
+# IDE Files
+.vscode/
+.idea/
 
 # macOS files
 .DS_Store
+
+# Heroku Files
+.heroku/
+
+# Git files
+.git/
+.gitignore
+
+# Test and Coverage Files
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.cache
+pytest_cache/
+
+# Migrations
+**/migrations/*.pyc
+**/migrations/*.pyo
+**/migrations/*.pyd
+**/migrations/__pycache__/
+**/migrations/*.sqlite3
