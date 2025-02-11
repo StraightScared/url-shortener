@@ -17,12 +17,11 @@ Including another URLconf
 
 # from django.contrib import admin
 from django.urls import path
-from hello.views import index, redirect_url, home, MusicPage, upload_file
+from hello.views import index, redirect_url, home, MusicPage
 
 urlpatterns = [
     path('', home, name="home"),
     path('music/', MusicPage, name="music"),
-    path('upload/', upload_file, name='upload_file'),
     path("shorten/", index, name="index"),
     path("<str:short_link>/", redirect_url, name="redirect_url")
     # Uncomment this and the entry in `INSTALLED_APPS` if you wish to use the Django admin feature:
