@@ -52,7 +52,7 @@
 <body>
     <div class="container">
         <h1>SHORTEN URL</h1>
-      <form method="POST" action="{% url `shorten_url` %}">
+      <form method="POST" action="{% url 'index' %}">
 
         <input type="text" name="original_url" placeholder="Enter URL here..." required>
         <button type="submit">Shorten</button>
