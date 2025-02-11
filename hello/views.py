@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404, redirect
 from django.template import loader
 import requests
 import os
@@ -20,6 +20,9 @@ def index(request):
         short_url = f"https://sh.rtn.com/{short_url_obj.short_link}"
     return render(request, "index.html", {"short_url": short_url})
 
+def redirect_url(request, short_link):
+    url_entry = get_object_or_404(ShortenedURL, short_link=short_link)
+    return redirect(url_entry.original_url)
 
 def db(request):
     # If you encounter errors visiting the `/db/` page on the example app, check that:
