@@ -5,7 +5,6 @@ import os
 
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Greeting
 from .models import ShortenedURL
 
 from django.http import HttpResponse
@@ -23,21 +22,3 @@ def index(request):
 def redirect_url(request, short_link):
     url_entry = get_object_or_404(ShortenedURL, short_link=short_link)
     return redirect(url_entry.original_url)
-
-def db(request):
-    # If you encounter errors visiting the `/db/` page on the example app, check that:
-    #
-    # When running the app on Heroku:
-    #   1. You have added the Postgres database to your app.
-    #   2. You have uncommented the `psycopg` dependency in `requirements.txt`, and the `release`
-    #      process entry in `Procfile`, git committed your changes and re-deployed the app.
-    #
-    # When running the app locally:
-    #   1. You have run `./manage.py migrate` to create the `hello_greeting` database table.
-
-    greeting = Greeting()
-    greeting.save()
-
-    greetings = Greeting.objects.all()
-
-    return render(request, "db.html", {"greetings": greetings})

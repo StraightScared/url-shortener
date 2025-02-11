@@ -21,8 +21,7 @@ from hello.views import index, redirect_url, db
 
 urlpatterns = [
     path("", index, name="index"),
-    path("<str:short_link>/", redirect_url, name="redirect_url"),
-    path("db/", db, name="db"),
+    path("<str:short_link>/", redirect_url, name="redirect_url")
     # Uncomment this and the entry in `INSTALLED_APPS` if you wish to use the Django admin feature:
     # https://docs.djangoproject.com/en/5.1/ref/contrib/admin/
     # path("admin/", admin.site.urls),
