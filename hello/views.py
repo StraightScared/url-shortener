@@ -15,6 +15,9 @@ def index(request):
     short_url = None
     if request.method == "POST":
         original_url = request.POST.get("original_url")
+        if not original_url.startswith("http://") and not original_url.startswith("https://"):
+            original_url = "https://" + original_url  # Ensure it's a valid URL
+
         short_url_obj = ShortenedURL.objects.create(original_url=original_url)
         short_url = f"https://sh-rtn.com/{short_url_obj.short_link}"
     return render(request, "index.html", {"short_url": short_url})
