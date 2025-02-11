@@ -17,7 +17,7 @@ Including another URLconf
 
 # from django.contrib import admin
 from django.urls import path
-from hello.views import index, redirect_url, db
+from hello.views import index, redirect_url
 
 urlpatterns = [
     path("", index, name="index"),
