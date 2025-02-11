@@ -1,16 +1,22 @@
 from django.shortcuts import render
+from django.template import loader
 import requests
 import os
 
 
 from .models import Greeting
+from .models import ShortenedURL
+
 from django.http import HttpResponse
 # Create your views here.
 
-
 def index(request):
-    times = int(os.environ.get('TIMES', 3))
-    return HttpResponse('Hello! ' * times)
+    short_url = None
+    if request.method == "POST":
+        original_url = request.POST.get("original_url")
+        short_url_obj = ShortenedURL.objects.create(original_url=original_url)
+        short_url = f"https://sh.rtn.com/{short_url_obj.short_link}"
+    return render(request, "index.html", {"short_url": short_url})
 
 
 def db(request):
