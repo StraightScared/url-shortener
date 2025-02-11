@@ -19,6 +19,13 @@ def index(request):
         short_url = f"https://sh-rtn.com/{short_url_obj.short_link}"
     return render(request, "index.html", {"short_url": short_url})
 
+def home(request):
+    pages = [
+        {"name": "Shorten URL", "url": "/shorten/"},
+        {"name": "Home Page", "url": "/"},
+    ]
+    return render(request, 'home.html', {'pages': pages})
+
 def redirect_url(request, short_link):
     url_entry = get_object_or_404(ShortenedURL, short_link=short_link)
     return redirect(url_entry.original_url)

@@ -17,10 +17,11 @@ Including another URLconf
 
 # from django.contrib import admin
 from django.urls import path
-from hello.views import index, redirect_url
+from hello.views import index, redirect_url, home
 
 urlpatterns = [
-    path("", index, name="index"),
+    path('', home, name="home"),
+    path("shorten/", index, name="index"),
     path("<str:short_link>/", redirect_url, name="redirect_url")
     # Uncomment this and the entry in `INSTALLED_APPS` if you wish to use the Django admin feature:
     # https://docs.djangoproject.com/en/5.1/ref/contrib/admin/
