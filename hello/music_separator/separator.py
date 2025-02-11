@@ -5,10 +5,13 @@ import soundfile as sf
 import librosa
 import numpy as np
 import torch
+import os
 
 class MusicSeparator:
     def __init__(self):
-        self.model = get_model(name='htdemucs_ft')
+        model_dir = '/tmp/models'
+        os.makedirs(model_dir, exist_ok=True)
+        self.model = get_model(name='htdemucs_ft', repo=model_dir)
         self.model.cpu()
 
     def separate_vocals(self, input_file, output_dir):

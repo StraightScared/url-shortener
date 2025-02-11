@@ -53,3 +53,16 @@ pytest_cache/
 **/migrations/*.pyd
 **/migrations/__pycache__/
 **/migrations/*.sqlite3
+
+/media/
+/staticfiles/
+
+# Ignore model files
+*.pth
+*.pt
+*.h5
+*.wav
+*.mp4
+
+# Temporary files
+*.pyc
