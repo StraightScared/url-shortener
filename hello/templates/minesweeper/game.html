@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minesweeper</title>
+  <title>Minesweeper - {{ difficulty|capfirst }} Mode</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,8 +11,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       flex-direction: column;
+      margin: 0;
     }
     .container {
       background: white;
@@ -20,8 +21,10 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
-      width: 320px;
+      /* Allow horizontal scroll for larger grids */
+      overflow-x: auto;
       position: relative;
+      margin-bottom: 20px;
     }
     h1 {
       margin-bottom: 10px;
@@ -31,6 +34,25 @@
     #timer {
       font-size: 16px;
       margin-bottom: 10px;
+    }
+    .difficulty-buttons {
+      margin-bottom: 15px;
+    }
+    .difficulty-buttons a {
+      text-decoration: none;
+      margin: 0 5px;
+    }
+    .difficulty-buttons button {
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .difficulty-buttons button:hover {
+      background-color: #0056b3;
     }
     table {
       border-collapse: collapse;
@@ -63,7 +85,6 @@
       cursor: pointer;
       font-size: 16px;
       margin-top: 20px;
-      /* Bring the button above the overlay */
       position: relative;
       z-index: 20;
     }
@@ -90,8 +111,14 @@
 </head>
 <body>
   <div class="container">
-    <h1>Minesweeper</h1>
+    <h1>Minesweeper - {{ difficulty|capfirst }}</h1>
     <div id="timer">Time: 0 seconds</div>
+    <!-- Difficulty selection buttons -->
+    <div class="difficulty-buttons">
+      <a href="?difficulty=easy"><button>Easy</button></a>
+      <a href="?difficulty=medium"><button>Medium</button></a>
+      <a href="?difficulty=hard"><button>Hard</button></a>
+    </div>
     <table id="gameBoard">
       {% for row in board %}
         <tr>
@@ -107,6 +134,7 @@
         </tr>
       {% endfor %}
     </table>
+    <!-- New Game button: Reloads the page preserving query parameters -->
     <button class="new-game" onclick="window.location.reload();">New Game</button>
     <div id="overlay" class="overlay" style="display: none;"></div>
   </div>
@@ -117,6 +145,7 @@
     let startTime = Date.now();
     let timerInterval = setInterval(updateTimer, 1000);
 
+    // Dynamically set grid dimensions based on Django-generated board
     const rows = {{ board|length }};
     const cols = {{ board.0|length }};
     const timerDisplay = document.getElementById('timer');

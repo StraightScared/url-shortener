@@ -20,7 +20,7 @@ def index(request):
 
 
 def generate_board(rows=9, cols=9, mines=10):
-    # Create an empty board as a list of lists (each cell is a dict).
+    # Create an empty board with each cell as a dictionary.
     board = [[{'mine': False, 'adjacent': 0} for _ in range(cols)] for _ in range(rows)]
 
     # Randomly place mines on the board.
@@ -44,8 +44,23 @@ def generate_board(rows=9, cols=9, mines=10):
 
 
 def minesweeper(request):
-    board = generate_board()
-    return render(request, 'minesweeper/game.html', {'board': board})
+    # Get difficulty from query parameters; default to 'easy'
+    difficulty = request.GET.get("difficulty", "easy").lower()
+
+    # Set grid and mine count based on difficulty.
+    if difficulty == "medium":
+        rows, cols = 16, 16
+        mines = round(rows * cols * 0.15625)  # ~40 mines
+    elif difficulty == "hard":
+        rows, cols = 16, 30
+        mines = round(rows * cols * 0.20625)  # ~99 mines
+    else:  # default to 'easy'
+        difficulty = "easy"
+        rows, cols = 9, 9
+        mines = round(rows * cols * 0.123)  # ~10 mines
+
+    board = generate_board(rows, cols, mines)
+    return render(request, 'minesweeper/game.html', {'board': board, 'difficulty': difficulty})
 
 def home(request):
     pages = [
