@@ -41,7 +41,7 @@
   </style>
 </head>
 <body>
-  <h1>Interactive Chess Game</h1>
+  <h1>Classical Chess</h1>
   <div id="board"></div>
   <div class="controls">
     <button id="resetBtn">Reset Game</button>
@@ -133,9 +133,11 @@
         removeHighlights();
       }
 
+
       // Chessboard.js configuration.
       var config = {
         draggable: true,
+        pieceTheme: '/static/wikipedia/{piece}.png',
         position: 'start',
         onDragStart: onDragStart,
         onDrop: onDrop,
