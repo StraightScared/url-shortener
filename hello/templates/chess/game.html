@@ -133,34 +133,26 @@
         removeHighlights();
       }
 
-     var cachedFiles = {};
-
-        fetch("/static/wikipedia/")
-          .then(response => response.text())
-          .then(html => {
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(html, 'text/html');
-            let filenames = Array.from(doc.querySelectorAll("a")).map(a => a.textContent);
-
-            filenames.forEach(filename => {
-                let key = filename.substring(0, 2); // Get first two letters (e.g., 'bK', 'wQ')
-                cachedFiles[key] = filename; // Map key to full filename
-            });
-
-            console.log("Mapped piece images:", cachedFiles);
-          })
-          .catch(error => console.log("Error fetching static files:", error));
-
-        function findPieceImage(piece) {
-            let baseUrl = "/static/wikipedia/";
-            return cachedFiles[piece] ? baseUrl + cachedFiles[piece] : baseUrl + piece + ".png";
-        }
+       var pieceMap = {
+      'bB': 'bB.3b014212f9bc.png',
+      'bK': 'bK.474307eef58a.png',
+      'bN': 'bN.a2e451246463.png',
+      'bP': 'bP.9473e99a93f3.png',
+      'bQ': 'bQ.12e26dc3ea07.png',
+      'bR': 'bR.5f85bb3c47b5.png',
+      'wB': 'wB.7dc2524b02ba.png',
+      'wK': 'wK.3023695ee08b.png',
+      'wN': 'wN.37398b803db0.png',
+      'wP': 'wP.f57254b7320b.png',
+      'wQ': 'wQ.aee6543bc4f1.png',
+      'wR': 'wR.84c713429499.png'
+  };
 
       // Chessboard.js configuration.
       var config = {
         draggable: true,
         pieceTheme: function(piece) {
-            return findPieceImage(piece);
+            return '/static/wikipedia/' + pieceMap[piece];
         },
         position: 'start',
         onDragStart: onDragStart,
