@@ -62,10 +62,14 @@ def minesweeper(request):
     board = generate_board(rows, cols, mines)
     return render(request, 'minesweeper/game.html', {'board': board, 'difficulty': difficulty})
 
+def chess(request):
+    return render(request, 'chess/game.html')
+
 def home(request):
     pages = [
         {"name": "Shorten URL", "url": "/shorten/"},
         {"name": "Minesweeper", "url": "/minesweeper/"},
+        {"name": "Chess", "url": "/chess/"},
         {"name": "Home Page", "url": "/"},
     ]
     return render(request, 'home.html', {'pages': pages})

@@ -17,11 +17,12 @@ Including another URLconf
 
 # from django.contrib import admin
 from django.urls import path
-from hello.views import index, redirect_url, home, minesweeper
+from hello.views import index, redirect_url, home, minesweeper, chess
 
 urlpatterns = [
     path('', home, name="home"),
     path('minesweeper/', minesweeper, name="Minesweeper"),
+    path('chess/', chess, name="Chess"),
     path("shorten/", index, name="index"),
     path("<str:short_link>/", redirect_url, name="redirect_url")
     # Uncomment this and the entry in `INSTALLED_APPS` if you wish to use the Django admin feature:

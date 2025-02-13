@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classical Chess Game</title>
+  <!-- jQuery (required by Chessboard.js) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+          integrity="sha256-/xUj+3OJ+YRF1R4mF+S9eRw5y+P1r5xq4IXTnYfX+z0="
+          crossorigin="anonymous"></script>
+  <!-- Chessboard.js CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/css/chessboard.min.css"
+        integrity="sha512-MpYmdA6EoR3NtyNwXHQkh5Z6T++L2K1V6ol7rqwU+0sT0kD9kG/C2tXJmIE6kD33vUoI2ZutXMxBkEX8qKFKvQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #board {
+      width: 400px;
+      margin-bottom: 20px;
+    }
+    .controls {
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Classical Chess Game</h1>
+  <div id="board"></div>
+  <div class="controls">
+    <button id="resetBtn">Reset Game</button>
+  </div>
+
+  <!-- Include Chess.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"
+          integrity="sha512-ANi6W8r+uZZXID0W53Rr8zVAPqIUEXIbmo5HgDZQq2uJpmcCDwoI76df3kHWVQZQyvNjkCW8s4vZpfJKFhW/lw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Include Chessboard.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.js"
+          integrity="sha512-tF44Ow4JjKBWzRpM/BUOXB2zPTB0+GqE9g/TO/9a9wZ8RFe4+pDq7rRKxM+lIX4gCWvJz7/KbycNy75MmPN+lg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    // Initialize Chess.js for game logic
+    var game = new Chess();
+
+    // Callback to prevent moving pieces if game over or moving opponent's pieces.
+    function onDragStart(source, piece, position, orientation) {
+      if (game.game_over()) return false;
+      if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        return false;
+      }
+    }
+
+    // Callback to handle piece drop and validate moves using Chess.js.
+    function onDrop(source, target) {
+      var move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q' // promote to queen for simplicity
+      });
+
+      // If the move is illegal, snap the piece back.
+      if (move === null) return 'snapback';
+    }
+
+    // Callback to update the board position after piece snap.
+    function onSnapEnd() {
+      board.position(game.fen());
+    }
+
+    // Callback for when the mouse hovers over a square.
+    function onMouseoverSquare(square, piece) {
+      // Get moves for this square.
+      var moves = game.moves({
+        square: square,
+        verbose: true
+      });
+
+      // Exit if no legal moves.
+      if (moves.length === 0) return;
+
+      // Highlight the square being hovered.
+      highlightSquare(square);
+
+      // Highlight the destination squares for all legal moves.
+      for (var i = 0; i < moves.length; i++) {
+        highlightSquare(moves[i].to);
+      }
+    }
+
+    // Callback for when the mouse leaves a square.
+    function onMouseoutSquare(square, piece) {
+      removeHighlights();
+    }
+
+    // Remove all highlight styling from squares.
+    function removeHighlights() {
+      $('#board .square-55d63').css('background', '');
+    }
+
+    // Highlight a given square.
+    function highlightSquare(square) {
+      var $square = $('#board .square-' + square);
+      var background = '#a9a9a9';
+      if ($square.hasClass('black-3c85d')) {
+        background = '#696969';
+      }
+      $square.css('background', background);
+    }
+
+    // Configure Chessboard.js with additional callbacks for mouseover/out.
+    var config = {
+      draggable: true,
+      position: 'start',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd,
+      onMouseoverSquare: onMouseoverSquare,
+      onMouseoutSquare: onMouseoutSquare
+    };
+
+    // Initialize the chessboard.
+    var board = Chessboard('board', config);
+
+    // Reset game button handler.
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      game.reset();
+      board.start();
+    });
+  </script>
+</body>
+</html>
