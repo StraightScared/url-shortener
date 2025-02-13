@@ -2,30 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classical Chess Game</title>
-  <!-- jQuery (required by Chessboard.js) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-          integrity="sha256-/xUj+3OJ+YRF1R4mF+S9eRw5y+P1r5xq4IXTnYfX+z0="
-          crossorigin="anonymous"></script>
-  <!-- Chessboard.js CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/css/chessboard.min.css"
-        integrity="sha512-MpYmdA6EoR3NtyNwXHQkh5Z6T++L2K1V6ol7rqwU+0sT0kD9kG/C2tXJmIE6kD33vUoI2ZutXMxBkEX8qKFKvQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Chess Game</title>
+  <!-- Load Chessboard.js CSS from the provided link -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+        integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
+        crossorigin="anonymous">
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
     }
+    /* Fixed width for the board container */
     #board {
       width: 400px;
-      margin-bottom: 20px;
+      margin: 20px auto;
     }
     .controls {
       margin-top: 10px;
@@ -33,10 +30,9 @@
     button {
       padding: 10px 15px;
       background: #007bff;
-      color: #fff;
       border: none;
+      color: white;
       border-radius: 5px;
-      margin: 5px;
       cursor: pointer;
     }
     button:hover {
@@ -45,108 +41,119 @@
   </style>
 </head>
 <body>
-  <h1>Classical Chess Game</h1>
+  <h1>Interactive Chess Game</h1>
   <div id="board"></div>
   <div class="controls">
     <button id="resetBtn">Reset Game</button>
   </div>
 
-  <!-- Include Chess.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"
-          integrity="sha512-ANi6W8r+uZZXID0W53Rr8zVAPqIUEXIbmo5HgDZQq2uJpmcCDwoI76df3kHWVQZQyvNjkCW8s4vZpfJKFhW/lw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- Include Chessboard.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.js"
-          integrity="sha512-tF44Ow4JjKBWzRpM/BUOXB2zPTB0+GqE9g/TO/9a9wZ8RFe4+pDq7rRKxM+lIX4gCWvJz7/KbycNy75MmPN+lg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Load jQuery from the provided link -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+          integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+          crossorigin="anonymous"></script>
+  <!-- Load Chessboard.js from the provided link -->
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+          integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+          crossorigin="anonymous"></script>
+  <!-- Load Chess.js (with game logic) from cdnjs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
   <script>
-    // Initialize Chess.js for game logic
-    var game = new Chess();
+    $(document).ready(function() {
+      console.log("Document ready – initializing chess game");
 
-    // Callback to prevent moving pieces if game over or moving opponent's pieces.
-    function onDragStart(source, piece, position, orientation) {
-      if (game.game_over()) return false;
-      if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-        return false;
+      // Ensure Chess.js loaded correctly.
+      if (typeof Chess === 'undefined') {
+        console.error("Chess is not defined! Check that Chess.js loaded correctly.");
+        return;
+      } else {
+        console.log("Chess.js loaded successfully.");
       }
-    }
 
-    // Callback to handle piece drop and validate moves using Chess.js.
-    function onDrop(source, target) {
-      var move = game.move({
-        from: source,
-        to: target,
-        promotion: 'q' // promote to queen for simplicity
+      // Initialize a new game using Chess.js.
+      var game = new Chess();
+
+      // Function to remove highlights from all board squares.
+      function removeHighlights() {
+        $('#board .square-55d63').css('background', '');
+      }
+
+      // Function to highlight a given square.
+      function highlightSquare(square) {
+        var $square = $('#board .square-' + square);
+        var background = '#a9a9a9';
+        if ($square.hasClass('black-3c85d')) {
+          background = '#696969';
+        }
+        $square.css('background', background);
+      }
+
+      // Callback: Prevent dragging if the game is over or not the player's turn.
+      function onDragStart(source, piece, position, orientation) {
+        if (game.game_over()) return false;
+        // Only allow moving pieces for the side whose turn it is.
+        if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+            (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+          return false;
+        }
+      }
+
+      // Callback: Handle piece drop – validate move with Chess.js.
+      function onDrop(source, target) {
+        var move = game.move({
+          from: source,
+          to: target,
+          promotion: 'q' // Always promote to a queen for simplicity.
+        });
+        // Illegal move? Snap the piece back.
+        if (move === null) return 'snapback';
+      }
+
+      // Callback: After snap, update board position.
+      function onSnapEnd() {
+        board.position(game.fen());
+      }
+
+      // Callback: On mouseover, highlight legal moves.
+      function onMouseoverSquare(square, piece) {
+        var moves = game.moves({
+          square: square,
+          verbose: true
+        });
+        // Exit if no moves available for that square.
+        if (moves.length === 0) return;
+        highlightSquare(square);
+        for (var i = 0; i < moves.length; i++) {
+          highlightSquare(moves[i].to);
+        }
+      }
+
+      // Callback: Remove highlights when mouse leaves a square.
+      function onMouseoutSquare(square, piece) {
+        removeHighlights();
+      }
+
+      // Chessboard.js configuration.
+      var config = {
+        draggable: true,
+        position: 'start',
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
+        onMouseoverSquare: onMouseoverSquare,
+        onMouseoutSquare: onMouseoutSquare
+      };
+
+      // Initialize Chessboard.js.
+      var board = Chessboard('board', config);
+      console.log("Chessboard initialized", board);
+
+      // Reset button: Resets the game and board.
+      $('#resetBtn').click(function() {
+        console.log("Reset button clicked");
+        game.reset();
+        board.start();
       });
-
-      // If the move is illegal, snap the piece back.
-      if (move === null) return 'snapback';
-    }
-
-    // Callback to update the board position after piece snap.
-    function onSnapEnd() {
-      board.position(game.fen());
-    }
-
-    // Callback for when the mouse hovers over a square.
-    function onMouseoverSquare(square, piece) {
-      // Get moves for this square.
-      var moves = game.moves({
-        square: square,
-        verbose: true
-      });
-
-      // Exit if no legal moves.
-      if (moves.length === 0) return;
-
-      // Highlight the square being hovered.
-      highlightSquare(square);
-
-      // Highlight the destination squares for all legal moves.
-      for (var i = 0; i < moves.length; i++) {
-        highlightSquare(moves[i].to);
-      }
-    }
-
-    // Callback for when the mouse leaves a square.
-    function onMouseoutSquare(square, piece) {
-      removeHighlights();
-    }
-
-    // Remove all highlight styling from squares.
-    function removeHighlights() {
-      $('#board .square-55d63').css('background', '');
-    }
-
-    // Highlight a given square.
-    function highlightSquare(square) {
-      var $square = $('#board .square-' + square);
-      var background = '#a9a9a9';
-      if ($square.hasClass('black-3c85d')) {
-        background = '#696969';
-      }
-      $square.css('background', background);
-    }
-
-    // Configure Chessboard.js with additional callbacks for mouseover/out.
-    var config = {
-      draggable: true,
-      position: 'start',
-      onDragStart: onDragStart,
-      onDrop: onDrop,
-      onSnapEnd: onSnapEnd,
-      onMouseoverSquare: onMouseoverSquare,
-      onMouseoutSquare: onMouseoutSquare
-    };
-
-    // Initialize the chessboard.
-    var board = Chessboard('board', config);
-
-    // Reset game button handler.
-    document.getElementById('resetBtn').addEventListener('click', function(){
-      game.reset();
-      board.start();
     });
   </script>
 </body>
