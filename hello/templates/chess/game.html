@@ -133,11 +133,35 @@
         removeHighlights();
       }
 
+     var cachedFiles = {};
+
+        fetch("/static/wikipedia/")
+          .then(response => response.text())
+          .then(html => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, 'text/html');
+            let filenames = Array.from(doc.querySelectorAll("a")).map(a => a.textContent);
+
+            filenames.forEach(filename => {
+                let key = filename.substring(0, 2); // Get first two letters (e.g., 'bK', 'wQ')
+                cachedFiles[key] = filename; // Map key to full filename
+            });
+
+            console.log("Mapped piece images:", cachedFiles);
+          })
+          .catch(error => console.log("Error fetching static files:", error));
+
+        function findPieceImage(piece) {
+            let baseUrl = "/static/wikipedia/";
+            return cachedFiles[piece] ? baseUrl + cachedFiles[piece] : baseUrl + piece + ".png";
+        }
 
       // Chessboard.js configuration.
       var config = {
         draggable: true,
-        pieceTheme: '/static/wikipedia/{piece}.png',
+        pieceTheme: function(piece) {
+            return findPieceImage(piece);
+        },
         position: 'start',
         onDragStart: onDragStart,
         onDrop: onDrop,
