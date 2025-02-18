@@ -153,7 +153,10 @@
     const cols = {{ board.0|length }};
 
     // Create a global click sound using the provided audio source.
-    const clickSound = new Audio("{% static '/audio/Click.wav' %}");
+    {% load static %}
+    <script>
+        const clickSound = new Audio("{% static 'audio/Click.wav' %}");
+    </script>
 
     // Function to play the click sound.
     function playClickSound() {
