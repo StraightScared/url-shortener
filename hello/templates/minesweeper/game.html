@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,11 +153,8 @@
     const rows = {{ board|length }};
     const cols = {{ board.0|length }};
 
-    // Create a global click sound using the provided audio source.
-    {% load static %}
-    <script>
-        const clickSound = new Audio("{% static 'audio/Click.wav' %}");
-    </script>
+    // Create a global click sound using a static file.
+    const clickSound = new Audio("{% static 'audio/Click.wav' %}");
 
     // Function to play the click sound.
     function playClickSound() {
@@ -305,7 +303,7 @@
     });
 
     // Attach mousedown event for reset button.
-    document.getElementById('resetBtn').addEventListener('click', function() {
+    document.getElementById('resetBtn').addEventListener('mousedown', function() {
       playClickSound();
       window.location.reload();
     });
