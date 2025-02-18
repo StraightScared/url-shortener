@@ -52,7 +52,7 @@ def minesweeper(request):
         rows, cols = 16, 16
         mines = round(rows * cols * 0.15625)  # ~40 mines
     elif difficulty == "hard":
-        rows, cols = 16, 30
+        rows, cols = 50, 50
         mines = round(rows * cols * 0.20625)  # ~99 mines
     else:  # default to 'easy'
         difficulty = "easy"

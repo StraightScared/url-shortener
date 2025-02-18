@@ -21,7 +21,6 @@
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       text-align: center;
-      /* Allow horizontal scroll for larger grids */
       overflow-x: auto;
       position: relative;
       margin-bottom: 20px;
@@ -62,14 +61,21 @@
       width: 30px;
       height: 30px;
       text-align: center;
-      border: 1px solid #333;
+      border: 2px solid #444;
       font-size: 18px;
       cursor: pointer;
       vertical-align: middle;
       user-select: none;
+      background: linear-gradient(145deg, #ffffff, #e0e0e0);
+      box-shadow: 3px 3px 5px #999, -3px -3px 5px #fff;
+      transition: all 0.1s ease-in-out;
+    }
+    td:active {
+      transform: scale(0.95);
     }
     td.revealed {
-      background-color: #ddd;
+      background: #b8b8b8;
+      box-shadow: inset 2px 2px 3px #777, inset -2px -2px 3px #fff;
       cursor: default;
     }
     td.flagged {
@@ -86,12 +92,11 @@
       font-size: 16px;
       margin-top: 20px;
       position: relative;
-      z-index: 20;
+      z-index: 20; /* Higher than the overlay */
     }
     button.new-game:hover {
       background-color: #0056b3;
     }
-    /* Overlay styles for end-of-game messages */
     .overlay {
       position: absolute;
       top: 0;
@@ -106,6 +111,7 @@
       font-size: 24px;
       border-radius: 10px;
       z-index: 10;
+      display: none;
     }
   </style>
 </head>
@@ -113,7 +119,7 @@
   <div class="container">
     <h1>Minesweeper - {{ difficulty|capfirst }}</h1>
     <div id="timer">Time: 0 seconds</div>
-    <!-- Difficulty selection buttons -->
+    <!-- Difficulty buttons -->
     <div class="difficulty-buttons">
       <a href="?difficulty=easy"><button>Easy</button></a>
       <a href="?difficulty=medium"><button>Medium</button></a>
@@ -123,7 +129,6 @@
       {% for row in board %}
         <tr>
           {% for cell in row %}
-            <!-- Each cell includes data for mine, adjacent count, and its position -->
             <td class="cell"
                 data-mine="{{ cell.mine|yesno:'true,false' }}"
                 data-adjacent="{{ cell.adjacent }}"
@@ -134,44 +139,66 @@
         </tr>
       {% endfor %}
     </table>
-    <!-- New Game button: Reloads the page preserving query parameters -->
-    <button class="new-game" onclick="window.location.reload();">New Game</button>
-    <div id="overlay" class="overlay" style="display: none;"></div>
+    <button class="new-game" id="resetBtn">New Game</button>
+    <div id="overlay" class="overlay"></div>
   </div>
 
   <script>
-    // Game state variables
     let gameOver = false;
     let startTime = Date.now();
     let timerInterval = setInterval(updateTimer, 1000);
-
-    // Dynamically set grid dimensions based on Django-generated board
-    const rows = {{ board|length }};
-    const cols = {{ board.0|length }};
     const timerDisplay = document.getElementById('timer');
     const overlay = document.getElementById('overlay');
+    const rows = {{ board|length }};
+    const cols = {{ board.0|length }};
 
-    // Update the timer display
-    function updateTimer() {
-      const seconds = Math.floor((Date.now() - startTime) / 1000);
-      timerDisplay.innerText = `Time: ${seconds} seconds`;
+    // Create a global click sound using the provided audio source.
+    const clickSound = new Audio("{% static '/audio/Click.wav' %}");
+
+    // Function to play the click sound.
+    function playClickSound() {
+      clickSound.currentTime = 0;
+      clickSound.play();
     }
 
-    // Show overlay with message and stop the timer
+    // Update the timer display every second.
+    function updateTimer() {
+      if (!gameOver) {
+        const seconds = Math.floor((Date.now() - startTime) / 1000);
+        timerDisplay.innerText = `Time: ${seconds} seconds`;
+      }
+    }
+
+    // Display a full-screen overlay message.
     function showOverlay(message) {
       overlay.innerText = message;
       overlay.style.display = 'flex';
       clearInterval(timerInterval);
     }
 
-    // Get a specific cell element by its row and column indices
+    // Helper to return a specific cell element.
     function getCell(row, col) {
-      return document.querySelector(`#gameBoard tr:nth-child(${row + 1}) td:nth-child(${col + 1})`);
+      return document.querySelector(
+        `#gameBoard tr:nth-child(${row + 1}) td:nth-child(${col + 1})`
+      );
     }
 
-    // Reveal a cell's content
+    // Reveal all mines when the game is over.
+    function revealAllMines() {
+      document.querySelectorAll('.cell').forEach(cell => {
+        if (cell.getAttribute('data-mine') === 'true') {
+          cell.classList.add('revealed');
+          cell.innerHTML = '💣';
+        }
+        cell.style.pointerEvents = 'none';
+      });
+    }
+
+    // Reveal a single cell.
     function revealCell(cell) {
       if (cell.classList.contains('revealed') || cell.classList.contains('flagged')) return;
+
+      playClickSound();
       cell.classList.add('revealed');
       const isMine = cell.getAttribute('data-mine') === 'true';
       const adjacent = parseInt(cell.getAttribute('data-adjacent'));
@@ -189,21 +216,11 @@
         const col = parseInt(cell.getAttribute('data-col'));
         revealAdjacentCells(row, col);
       }
+
       checkWinCondition();
     }
 
-    // Reveal all mines on the board when the game ends
-    function revealAllMines() {
-      document.querySelectorAll('.cell').forEach(cell => {
-        if (cell.getAttribute('data-mine') === 'true') {
-          cell.classList.add('revealed');
-          cell.innerHTML = '💣';
-        }
-        cell.style.pointerEvents = 'none';
-      });
-    }
-
-    // Recursively reveal neighboring cells with no adjacent mines
+    // Recursively reveal adjacent cells with no adjacent mines.
     function revealAdjacentCells(row, col) {
       for (let r = row - 1; r <= row + 1; r++) {
         for (let c = col - 1; c <= col + 1; c++) {
@@ -228,9 +245,10 @@
       }
     }
 
-    // Toggle a flag on right-click
+    // Toggle flag status on a cell.
     function toggleFlag(cell) {
       if (cell.classList.contains('revealed')) return;
+      playClickSound();
       if (cell.classList.contains('flagged')) {
         cell.classList.remove('flagged');
         cell.innerHTML = '';
@@ -240,13 +258,11 @@
       }
     }
 
-    // Check for win condition: all non-mine cells are revealed
+    // Check if all non-mine cells have been revealed.
     function checkWinCondition() {
-      const cells = document.querySelectorAll('.cell');
       let win = true;
-      cells.forEach(cell => {
-        const isMine = cell.getAttribute('data-mine') === 'true';
-        if (!isMine && !cell.classList.contains('revealed')) {
+      document.querySelectorAll('.cell').forEach(cell => {
+        if (cell.getAttribute('data-mine') !== 'true' && !cell.classList.contains('revealed')) {
           win = false;
         }
       });
@@ -257,21 +273,43 @@
       }
     }
 
-    // Attach event listeners to each cell
+    // Attach mousedown event listeners for desktop.
     document.querySelectorAll('.cell').forEach(cell => {
-      // Left-click to reveal a cell
-      cell.addEventListener('click', function() {
-        if (!gameOver && !cell.classList.contains('flagged')) {
+      cell.addEventListener('mousedown', function(e) {
+        if (gameOver) return;
+        // e.button: 0 = left, 2 = right
+        if (e.button === 0 && !cell.classList.contains('flagged')) {
           revealCell(cell);
-        }
-      });
-      // Right-click to toggle flag
-      cell.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        if (!gameOver) {
+        } else if (e.button === 2) {
+          // Prevent default context menu from showing.
+          e.preventDefault();
           toggleFlag(cell);
         }
       });
+    });
+
+    // For mobile: add a long-press handler to toggle flag.
+    document.querySelectorAll('.cell').forEach(cell => {
+      let pressTimer;
+      cell.addEventListener('touchstart', function(e) {
+        pressTimer = setTimeout(() => {
+          toggleFlag(cell);
+        }, 500); // 500ms long press to flag
+      });
+      cell.addEventListener('touchend', function(e) {
+        clearTimeout(pressTimer);
+      });
+    });
+
+    // Attach mousedown event for reset button.
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      playClickSound();
+      window.location.reload();
+    });
+
+    // Prevent context menu from appearing on right-click.
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
     });
   </script>
 </body>
